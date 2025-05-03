@@ -27,12 +27,17 @@ export async function POST(req: NextRequest) {
       });
 
     } catch (error: any) {
+      const status = error?.response?.status;
       const errorData = error?.response?.data;
-      const errorDetail = errorData?.detail ?? 'Unknown error';
-
-      console.error('Error generating custom audio:', JSON.stringify(errorData));
-
-      if (error?.response?.status === 402) {
+      const errorDetail = errorData?.detail ?? error?.message ?? 'Unknown error';
+    
+      console.error('Error generating custom audio:', {
+        status,
+        data: errorData,
+        message: error?.message
+      });
+    
+      if (status === 402) {
         return new NextResponse(JSON.stringify({ error: errorDetail }), {
           status: 402,
           headers: {
@@ -41,7 +46,7 @@ export async function POST(req: NextRequest) {
           }
         });
       }
-
+    
       return new NextResponse(
         JSON.stringify({ error: 'Internal server error: ' + errorDetail }),
         {
